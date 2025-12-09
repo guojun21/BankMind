@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BankMind - 客户经营可视化大屏</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 3px;
+        }
+        
+        .header p {
+            color: #a0a0a0;
+            margin-top: 5px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 指标卡片 */
+        .indicators {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .indicator-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .indicator-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(52, 152, 219, 0.3);
+        }
+        
+        .indicator-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+        
+        .indicator-label {
+            font-size: 14px;
+            color: #a0a0a0;
+        }
+        
+        /* 图表区域 */
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .chart-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            color: #fff;
+            margin-bottom: 10px;
+            padding-left: 10px;
+            border-left: 3px solid #3498db;
+        }
+        
+        .chart {
+            height: 280px;
+        }
+        
+        .charts-row-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .chart-large {
+            height: 350px;
+        }
+        
+        /* 加载动画 */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            color: #a0a0a0;
+        }
+        
+        @media (max-width: 1200px) {
+            .indicators {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .charts-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .indicators {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .charts-row, .charts-row-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏦 BankMind 客户经营可视化大屏</h1>
+        <p>实时洞察客户全貌，驱动精准营销决策</p>
+    </div>
+    
+    <div class="container">
+        <!-- 核心指标 -->
+        <div class="indicators">
+            <div class="indicator-card">
+                <div class="indicator-value" id="total-customers">--</div>
+                <div class="indicator-label">客户总数</div>
+            </div>
+            <div class="indicator-card">
+                <div class="indicator-value" id="total-assets">--</div>
+                <div class="indicator-label">资产总规模</div>
+            </div>
+            <div class="indicator-card">
+                <div class="indicator-value" id="avg-assets">--</div>
+                <div class="indicator-label">人均资产</div>
+            </div>
+            <div class="indicator-card">
+                <div class="indicator-value" id="active-customers">--</div>
+                <div class="indicator-label">活跃客户数</div>
+            </div>
+            <div class="indicator-card">
+                <div class="indicator-value" id="repurchase-rate">--</div>
+                <div class="indicator-label">复购率</div>
+            </div>
+        </div>
+        
+        <!-- 第一行图表 -->
+        <div class="charts-row">
+            <div class="chart-card">
+                <div class="chart-title">📊 客户等级分布</div>
+                <div id="chart-lifecycle" class="chart"></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">💰 资产等级分布</div>
+                <div id="chart-asset-level" class="chart"></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">📦 产品持有情况</div>
+                <div id="chart-products" class="chart"></div>
+            </div>
+        </div>
+        
+        <!-- 第二行图表 -->
+        <div class="charts-row-2">
+            <div class="chart-card">
+                <div class="chart-title">👥 年龄分布</div>
+                <div id="chart-age" class="chart-large"></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">⚠️ 风险等级分布</div>
+                <div id="chart-risk" class="chart-large"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 格式化数字
+        function formatNumber(num) {
+            if (num >= 100000000) {
+                return (num / 100000000).toFixed(2) + '亿';
+            } else if (num >= 10000) {
+                return (num / 10000).toFixed(2) + '万';
+            }
+            return num.toLocaleString();
+        }
+        
+        // 格式化百分比
+        function formatPercent(num) {
+            return (num * 100).toFixed(1) + '%';
+        }
+        
+        // 加载指标数据
+        async function loadIndicators() {
+            try {
+                const response = await fetch('/api/indicators');
+                const data = await response.json();
+                
+                document.getElementById('total-customers').textContent = formatNumber(data.total_customers);
+                document.getElementById('total-assets').textContent = formatNumber(data.total_assets);
+                document.getElementById('avg-assets').textContent = formatNumber(data.avg_assets);
+                document.getElementById('active-customers').textContent = data.active_customers ? formatNumber(data.active_customers) : '--';
+                document.getElementById('repurchase-rate').textContent = data.repurchase_rate ? formatPercent(data.repurchase_rate) : '--';
+            } catch (error) {
+                console.error('加载指标失败:', error);
+            }
+        }
+        
+        // 创建饼图
+        function createPieChart(elementId, data, title) {
+            const chart = echarts.init(document.getElementById(elementId));
+            const chartData = Object.entries(data).map(([name, value]) => ({ name, value }));
+            
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c} ({d}%)'
+                },
+                legend: {
+                    orient: 'vertical',
+                    right: 10,
+                    top: 'center',
+                    textStyle: { color: '#a0a0a0' }
+                },
+                series: [{
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    center: ['40%', '50%'],
+                    avoidLabelOverlap: false,
+                    itemStyle: {
+                        borderRadius: 10,
+                        borderColor: '#1a1a2e',
+                        borderWidth: 2
+                    },
+                    label: {
+                        show: false
+                    },
+                    emphasis: {
+                        label: {
+                            show: true,
+                            fontSize: 14,
+                            fontWeight: 'bold'
+                        }
+                    },
+                    data: chartData
+                }],
+                color: ['#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c']
+            };
+            
+            chart.setOption(option);
+            window.addEventListener('resize', () => chart.resize());
+        }
+        
+        // 创建柱状图
+        function createBarChart(elementId, data, title) {
+            const chart = echarts.init(document.getElementById(elementId));
+            const labels = Object.keys(data);
+            const values = Object.values(data);
+            
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: labels,
+                    axisLabel: {
+                        color: '#a0a0a0',
+                        rotate: 30
+                    },
+                    axisLine: { lineStyle: { color: '#444' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: { color: '#a0a0a0' },
+                    splitLine: { lineStyle: { color: '#333' } }
+                },
+                series: [{
+                    type: 'bar',
+                    data: values,
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#3498db' },
+                            { offset: 1, color: '#2ecc71' }
+                        ]),
+                        borderRadius: [5, 5, 0, 0]
+                    }
+                }]
+            };
+            
+            chart.setOption(option);
+            window.addEventListener('resize', () => chart.resize());
+        }
+        
+        // 加载图表数据
+        async function loadCharts() {
+            try {
+                // 客户等级
+                const lifecycleRes = await fetch('/api/lifecycle');
+                const lifecycleData = await lifecycleRes.json();
+                createPieChart('chart-lifecycle', lifecycleData);
+                
+                // 资产等级
+                const assetRes = await fetch('/api/asset_level');
+                const assetData = await assetRes.json();
+                createPieChart('chart-asset-level', assetData);
+                
+                // 产品持有
+                const productRes = await fetch('/api/product_holdings');
+                const productData = await productRes.json();
+                createBarChart('chart-products', productData);
+                
+                // 年龄分布
+                const ageRes = await fetch('/api/age_distribution');
+                const ageData = await ageRes.json();
+                createBarChart('chart-age', ageData);
+                
+                // 风险分布
+                const riskRes = await fetch('/api/risk');
+                const riskData = await riskRes.json();
+                createPieChart('chart-risk', riskData);
+                
+            } catch (error) {
+                console.error('加载图表失败:', error);
+            }
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadIndicators();
+            loadCharts();
+            
+            // 每60秒刷新一次
+            setInterval(() => {
+                loadIndicators();
+                loadCharts();
+            }, 60000);
+        });
+    </script>
+</body>
+</html>
+
