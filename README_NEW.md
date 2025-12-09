@@ -21,75 +21,31 @@ BankMind 是一个面向银行零售业务的**数据驱动精准营销**解决�
 
 ```
 BankMind/
-├── main.py                    # 主入口文件（命令行接口）
-├── requirements.txt           # 依赖包列表
-├── README.md                  # 项目说明
+├── backend/                   # 后端（Flask + 数据&模型）
+│   ├── main.py               # 命令行入口
+│   ├── requirements.txt      # 依赖列表
+│   ├── src/                  # 业务代码
+│   │   ├── config/           # 配置模块
+│   │   ├── data/             # 数据处理
+│   │   ├── models/           # 机器学习模型
+│   │   ├── analysis/         # 统计分析
+│   │   ├── visualization/    # 图表生成
+│   │   ├── assistant/        # AI 助手
+│   │   ├── web/              # Flask 应用 (API)
+│   │   └── utils/            # 工具方法
+│   ├── scripts/              # 独立运行脚本
+│   ├── data/                 # 业务数据（CSV 等）
+│   ├── models/               # 训练产出
+│   └── output/               # 报表/日志等输出
 │
-├── src/                       # 源代码目录
-│   ├── __init__.py
-│   │
-│   ├── config/               # 配置模块
-│   │   ├── __init__.py
-│   │   ├── settings.py       # 全局配置
-│   │   └── database.py       # 数据库配置
-│   │
-│   ├── data/                 # 数据处理模块
-│   │   ├── __init__.py
-│   │   ├── loader.py         # 数据加载器
-│   │   ├── preprocessor.py   # 数据预处理
-│   │   └── feature_engineering.py  # 特征工程
-│   │
-│   ├── models/               # 机器学习模型模块
-│   │   ├── __init__.py
-│   │   ├── base.py           # 模型基类
-│   │   ├── high_value_predictor.py  # 高价值客户预测
-│   │   └── customer_clustering.py   # 客户分群
-│   │
-│   ├── analysis/             # 分析模块
-│   │   ├── __init__.py
-│   │   ├── association.py    # 产品关联分析
-│   │   ├── time_series.py    # 时间序列分析
-│   │   └── explainer.py      # 模型可解释性(SHAP)
-│   │
-│   ├── visualization/        # 可视化模块
-│   │   ├── __init__.py
-│   │   ├── style.py          # 样式配置
-│   │   ├── charts.py         # 图表生成器
-│   │   └── dashboard.py      # Dashboard数据生成
-│   │
-│   ├── assistant/            # AI助手模块
-│   │   ├── __init__.py
-│   │   ├── agent.py          # 智能助手
-│   │   ├── tools.py          # 助手工具
-│   │   └── prompts.py        # 提示词模板
-│   │
-│   ├── web/                  # Web应用模块
-│   │   ├── __init__.py
-│   │   ├── app.py            # Flask应用
-│   │   ├── api.py            # API路由
-│   │   └── templates/        # HTML模板
-│   │
-│   └── utils/                # 工具模块
-│       ├── __init__.py
-│       ├── helpers.py        # 通用工具函数
-│       └── logger.py         # 日志配置
+├── frontend/                 # 前端可视化大屏
+│   ├── dashboard.html        # 单页 ECharts 大屏
+│   └── static/               # 静态资源（可选）
 │
-├── scripts/                  # 独立脚本
-│   ├── train_high_value.py   # 训练高价值预测模型
-│   ├── run_clustering.py     # 运行客户分群
-│   └── run_association.py    # 运行关联分析
+├── legacy/                   # 老版本代码与参考资料
+│   └── ...                   # 保留只读
 │
-├── data/                     # 数据目录
-│   ├── customer_base.csv
-│   └── customer_behavior_assets.csv
-│
-├── output/                   # 输出目录
-│   ├── charts/              # 图表输出
-│   ├── reports/             # 报告输出
-│   └── logs/                # 日志
-│
-└── models/                   # 模型目录
-    └── saved/               # 保存的模型文件
+└── wrapDoc/                  # 项目过程文档
 ```
 
 ## 🚀 快速开始
@@ -102,7 +58,7 @@ BankMind/
 ### 安装依赖
 
 ```bash
-cd BankMind
+cd BankMind/backend
 pip install -r requirements.txt
 ```
 
@@ -122,13 +78,15 @@ export DB_PASSWORD="password"
 
 ### 准备数据
 
-将数据文件放入 `data/` 目录：
+将数据文件放入 `backend/data/` 目录：
 - `customer_base.csv` - 客户基础信息
 - `customer_behavior_assets.csv` - 客户行为资产数据
 
 ## 📖 使用指南
 
 ### 命令行接口
+
+> 先进入 `BankMind/backend` 目录后再执行以下命令。
 
 ```bash
 # 查看帮助
@@ -158,6 +116,8 @@ python main.py analyze --type trend
 
 ### 独立脚本
 
+> 同样需要在 `BankMind/backend` 目录中执行。
+
 ```bash
 # 训练高价值预测模型
 python scripts/train_high_value.py
@@ -170,6 +130,8 @@ python scripts/run_association.py --min-support 0.1
 ```
 
 ### Python API 使用
+
+> 在 `BankMind/backend` 目录中通过 Python 交互或脚本引用。
 
 ```python
 # 数据加载
