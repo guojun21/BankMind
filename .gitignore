@@ -22,10 +22,25 @@ build/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# 数据文件（大文件）
+# 数据文件（大文件）- 允许小文件上传
+# *.csv
+# *.xlsx
+# *.xls
+# 排除大文件，但允许示例数据
 *.csv
+!**/customer_base.csv
+!**/customer_behavior_assets.csv
+!**/customer_cluster_result.csv
+!**/frequent_product_itemsets.csv
+!**/product_association_rules.csv
+!**/BreadBasket_DMS.csv
+
+# Excel文件 - 允许示例文件
 *.xlsx
 *.xls
+!**/simulated_customers.xlsx
+!**/simulated_customers_with_explain.xlsx
+!**/客户话术.xlsx
 
 # 模型文件
 *.pkl
@@ -33,15 +48,28 @@ build/
 *.h5
 *.ckpt
 
-# 图片文件（生成的图表）
+# 图片文件（允许示例图表）
 *.png
 *.jpg
 *.jpeg
 *.gif
 *.svg
+# 允许示例图表
+!**/aum_forecast.png
+!**/aum_history.png
+!**/coefficient_bar.png
+!**/customer_clusters.png
+!**/lgbm_feature_importance.png
+!**/shap_force_plot.png
+!**/shap_summary_plot.png
+!**/tree_depth4.png
+# 排除image_show目录下的临时图片
+image_show/*.png
 
-# PDF文件
+# PDF文件 - 允许文档
 *.pdf
+!**/挖掘数据中的关联关系.pdf
+!**/项目实战：AI运营助手.pdf
 
 # 日志文件
 *.log
